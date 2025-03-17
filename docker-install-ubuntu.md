@@ -37,7 +37,7 @@ Check that Docker is installed correctly:
 docker --version
 ```
 
-##Notes
+##  Notes
 
 - These commands assume you have sudo privileges.
 
