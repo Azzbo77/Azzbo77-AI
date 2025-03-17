@@ -36,7 +36,15 @@ Follow these steps to set up the project locally:
    docker-compose up --build
    ```
 
-3. Open your browser and navigate to http://localhost:8080 (or the port specified in your setup) to access the Open WebUI.
+3. Pull a model for Ollama
+Ollama starts without a pre-loaded model. In a new terminal, pull a model (e.g., llama2) by running:
+   ```bash
+   docker exec -it ollama ollama pull llama2
+   ```
+Alternatively, you can select and pull a model through the Open WebUI interface after it loads.
+
+4. Open your browser and navigate to http://localhost:3000 to access the Open WebUI.
+
 ## Next Steps
 
 - Configure Ollama with a specific model
