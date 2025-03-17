@@ -18,10 +18,10 @@ This project is in its early stages. Right now, I’m focused on getting the bas
 
 ### Prerequisites
 
-Docker installed on your machine
+- Docker installed on your machine
 
-Basic familiarity with command-line tool
-
+- Basic familiarity with command-line tool
+  
 ### Installation
 
 Follow these steps to set up the project locally:
@@ -29,7 +29,7 @@ Follow these steps to set up the project locally:
 1. **Clone the repository**
    ```bash
    git clone https://github.com/Azzbo77/Azzbo77-AI.git
-   cd Azzbo77
+   cd Azzbo77-AI
 
 2. **Run the Docker container**
    ```bash
@@ -39,18 +39,20 @@ Follow these steps to set up the project locally:
 
 ## Next Steps
 
-Configure Ollama with a specific model
+- Configure Ollama with a specific model
 
-Add custom functionality to the AI agent
+- Add custom functionality to the AI agent
 
-Improve the UI experience
+- Improve the UI experience
 
-Document usage and features
+- Document usage and features
 
 ## Contributing
 Since this is my first attempt, I’m open to suggestions! Feel free to open an issue or submit a pull request if you have ideas or improvements.
 
-License
+## License
+
+This project is licensed under the [MIT License](LICENSE).
 
 
 
