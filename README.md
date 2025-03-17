@@ -19,8 +19,7 @@ This project is in its early stages. Right now, I’m focused on getting the bas
 ### Prerequisites
 
 - Docker installed on your machine
-
-- Basic familiarity with command-line tool
+- Basic familiarity with command-line tools
   
 ### Installation
 
@@ -30,13 +29,14 @@ Follow these steps to set up the project locally:
    ```bash
    git clone https://github.com/Azzbo77/Azzbo77-AI.git
    cd Azzbo77-AI
+   ```
 
 2. **Run the Docker container**
    ```bash
    docker-compose up --build
+   ```
 
 3. Open your browser and navigate to http://localhost:8080 (or the port specified in your setup) to access the Open WebUI.
-
 ## Next Steps
 
 - Configure Ollama with a specific model
@@ -53,6 +53,5 @@ Since this is my first attempt, I’m open to suggestions! Feel free to open an 
 ## License
 
 This project is licensed under the [MIT License](LICENSE).
-
 
 
