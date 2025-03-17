@@ -2,19 +2,22 @@
 
 Welcome to my first attempt at building an AI Agent! This is a work-in-progress project, and I’ll be developing it iteratively as I go. The goal is to create a functional AI agent using modern tools and frameworks.
 
-##Current Setup
+###C urrent Setup
+
 - Ollama: Used as the core AI model framework.
 
 - Open WebUI: Provides a user-friendly interface to interact with the AI.
 
 - Docker: Everything runs inside a Docker container for easy setup and portability.
 
-Project Status
+### Project Status
+
 This project is in its early stages. Right now, I’m focused on getting the basic components working together. Future updates will include more features, refinements, and documentation as I progress.
 
-Getting Started
+### Getting Started
 
-Prerequisites
+## Prerequisites
+
 Docker installed on your machine
 
 Basic familiarity with command-line tool
