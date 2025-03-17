@@ -18,7 +18,7 @@ This project is in its early stages. Right now, I’m focused on getting the bas
 
 ### Prerequisites
 
-- Docker installed on your machine
+- Docker installed on your machine ([Instructions for Ubuntu](docker-install-ubuntu.md) | [Official Docker Installation Guide](https://docs.docker.com/get-docker/))
 - Basic familiarity with command-line tools
   
 ### Installation
