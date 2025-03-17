@@ -42,11 +42,11 @@ Check that Docker is installed correctly:
 
 - These commands assume you have sudo privileges.
 
-- For more details or troubleshooting, see the official Docker documentation.
+- For more details or troubleshooting, see the [Official Docker Installation Guide](https://docs.docker.com/get-docker/)).
 
 ## For Other Linux Distributions
 
-- For other Linux distributions, refer to the official Docker documentation.
+- For other Linux distributions, refer to the [Official Docker Installation Guide](https://docs.docker.com/get-docker/)).
 
 
 
