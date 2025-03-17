@@ -44,6 +44,10 @@ Check that Docker is installed correctly:
 
 - For more details or troubleshooting, see the official Docker documentation.
 
+## For Other Linux Distributions
+
+- For other Linux distributions, refer to the official Docker documentation.
+
 
 
 
