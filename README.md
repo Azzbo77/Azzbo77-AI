@@ -36,8 +36,8 @@ Follow these steps to set up the project locally:
    docker-compose up --build
    ```
 
-3. Pull a model for Ollama
-Ollama starts without a pre-loaded model. In a new terminal, pull a model (e.g., llama2) by running:
+3. **Pull a model for Ollama**
+   Ollama starts without a pre-loaded model. In a new terminal, pull a model (e.g., llama2) by running:
    ```bash
    docker exec -it ollama ollama pull llama2
    ```
