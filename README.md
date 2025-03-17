@@ -41,7 +41,7 @@ Ollama starts without a pre-loaded model. In a new terminal, pull a model (e.g.,
    ```bash
    docker exec -it ollama ollama pull llama2
    ```
-Alternatively, you can select and pull a model through the Open WebUI interface after it loads.
+   Alternatively, you can select and pull a model through the Open WebUI interface after it loads.
 
 4. Open your browser and navigate to http://localhost:3000 to access the Open WebUI.
 
