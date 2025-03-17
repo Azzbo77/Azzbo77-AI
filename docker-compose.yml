@@ -7,12 +7,19 @@ services:
     restart: unless-stopped
     volumes:
       - ollama-data:/root/.ollama
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
 
   open-webui:
     image: ghcr.io/open-webui/open-webui:main
     container_name: open-webui
     ports:
-      - "8080:8080"
+      - "3000:8080"
     environment:
       - OLLAMA_API_BASE_URL=http://ollama:11434
     depends_on:
