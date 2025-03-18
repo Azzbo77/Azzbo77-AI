@@ -26,5 +26,16 @@ services:
       - ollama
     restart: unless-stopped
 
+  searxng:
+    image: docker.io/searxng/searxng:latest
+    container_name: searxng
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./searxng:/etc/searxng:rw
+    environment:
+      - SEARXNG_BASE_URL=http://localhost:8080/
+
 volumes:
   ollama-data:
