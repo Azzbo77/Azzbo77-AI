@@ -1,4 +1,21 @@
 services:
+  open-webui:
+    image: ghcr.io/open-webui/open-webui:main
+    container_name: open-webui
+    ports:
+      - "3000:8080"
+    environment:
+      - OLLAMA_API_BASE_URL=http://ollama:11434
+      - OLLAMA_BASE_URL=http://ollama:11434
+      - ENABLE_RAG_WEB_SEARCH=True              # Enable web search
+      - RAG_WEB_SEARCH_ENGINE=searxng           # Use SearXNG as the engine
+      - SEARXNG_QUERY_URL=http://searxng:8080/search?q=<query>&format=json  # SearXNG endpoint
+      - RAG_WEB_SEARCH_RESULT_COUNT=5           # Number of results (optional, default 3)
+      - RAG_WEB_SEARCH_CONCURRENT_REQUESTS=10   # Concurrent requests (optional, default 10)
+    depends_on:
+      - ollama
+      - searxng
+    restart: unless-stopped
   ollama:
     image: ollama/ollama:latest
     container_name: ollama
@@ -12,17 +29,6 @@ services:
             - driver: nvidia
               count: 1
               capabilities: [gpu]
-  open-webui:
-    image: ghcr.io/open-webui/open-webui:main
-    container_name: open-webui
-    ports:
-      - "3000:8080"
-    environment:
-      - OLLAMA_API_BASE_URL=http://ollama:11434
-      - OLLAMA_BASE_URL=http://ollama:11434
-    depends_on:
-      - ollama
-    restart: unless-stopped
   searxng:
     image: docker.io/searxng/searxng:latest
     container_name: searxng
