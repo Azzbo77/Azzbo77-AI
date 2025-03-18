@@ -30,7 +30,7 @@ Open your terminal and run the following commands to set up Docker’s apt repos
 
 4. **Install Docker**
 
-After setting up the repository, update the package index again and install Docker:
+   After setting up the repository, update the package index again and install Docker:
 
    ```bash
    sudo apt-get update
@@ -39,23 +39,23 @@ After setting up the repository, update the package index again and install Dock
 
 5. **Install NVIDIA Container Toolkit (for GPU support)**
    
-If you plan to use an NVIDIA GPU with Docker (e.g., for Ollama), install the NVIDIA Container Toolkit:
+   If you plan to use an NVIDIA GPU with Docker (e.g., for Ollama), install the NVIDIA Container Toolkit:
 
-  ```bash
-  sudo apt-get install -y nvidia-container-toolkit
-  sudo nvidia-ctk runtime configure --runtime=docker
-  sudo systemctl restart docker
-  ```
+   ```bash
+   sudo apt-get install -y nvidia-container-toolkit
+   sudo nvidia-ctk runtime configure --runtime=docker
+   sudo systemctl restart docker
+   ```
 
 6. **Verify Installation**
    
-Check that Docker is installed correctly:
+   Check that Docker is installed correctly:
 
    ```bash
    docker --version
    ```
 
-**If using an NVIDIA GPU, verify GPU access:**
+   **If using an NVIDIA GPU, verify GPU access:**
 
    ```bash
    docker run --rm --gpus all nvidia/cuda:11.0-base nvidia-smi
