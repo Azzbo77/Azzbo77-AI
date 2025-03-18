@@ -4,13 +4,13 @@ Welcome to my first attempt at building an AI Agent! This is a work-in-progress 
 
 ## Current Setup
 
-- Ollama: Used as the core AI model framework.
+- **Ollama:** Used as the core AI model framework.
 
-- Open WebUI: Provides a user-friendly interface to interact with the AI.
+- **Open WebUI:** Provides a user-friendly interface to interact with the AI.
 
-- SearXNG: A local, privacy-focused metasearch engine for web search capabilities.
+- **SearXNG:** A local, privacy-focused metasearch engine for web search capabilities.
 
-- Docker: Everything runs inside a Docker container for easy setup and portability.
+- **Docker:** Everything runs inside a Docker container for easy setup and portability.
 
 ## Project Status
 
