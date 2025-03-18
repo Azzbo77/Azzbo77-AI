@@ -21,8 +21,7 @@ This project is in its early stages. Right now, I’m focused on getting the bas
 ### Prerequisites
 
 - Docker installed on your machine ([Instructions for Ubuntu](docker-install-ubuntu.md) | [Official Docker Installation Guide](https://docs.docker.com/get-docker/))
-
--   *Note*: On Windows, you can use WSL 2 with Docker Desktop. Install WSL 2 (`wsl --install`), an Ubuntu distro from the Microsoft Store, and enable WSL 2 integration in Docker Desktop settings. See [Docker Desktop WSL 2 setup](https://docs.docker.com/desktop/wsl/).
+*Note*: On Windows, you can use WSL 2 with Docker Desktop. Install WSL 2 (`wsl --install`), an Ubuntu distro from the Microsoft Store, and enable WSL 2 integration in Docker Desktop settings. See [Docker Desktop WSL 2 setup](https://docs.docker.com/desktop/wsl/).
   
 - NVIDIA Container Toolkit installed if using an NVIDIA GPU for Ollama ([Instructions for Ubuntu](docker-install-ubuntu.md) | [Official NVIDIA Docs](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html)).
   
