@@ -12,7 +12,6 @@ services:
             - driver: nvidia
               count: 1
               capabilities: [gpu]
-
   open-webui:
     image: ghcr.io/open-webui/open-webui:main
     container_name: open-webui
@@ -20,10 +19,10 @@ services:
       - "3000:8080"
     environment:
       - OLLAMA_API_BASE_URL=http://ollama:11434
+      - OLLAMA_BASE_URL=http://ollama:11434
     depends_on:
       - ollama
     restart: unless-stopped
-
   searxng:
     image: docker.io/searxng/searxng:latest
     container_name: searxng
@@ -34,6 +33,5 @@ services:
       - ./searxng:/etc/searxng:rw
     environment:
       - SEARXNG_BASE_URL=http://localhost:8080/
-
 volumes:
   ollama-data:
