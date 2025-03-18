@@ -41,7 +41,7 @@ Follow these steps to set up the project locally:
 3. **Run the Docker container**
 
    ```bash
-   docker-compose up --build
+   docker compose up --build
    ```
 
 4. **Pull a model for Ollama**
