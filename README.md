@@ -55,6 +55,7 @@ Follow these steps to set up the project locally:
 5. Open your browser and navigate to:
 
  - http://localhost:3000 to access the Open WebUI.
+  
  - http://localhost:8080 to access SearXNG for local web searches.
 
 ## Next Steps
