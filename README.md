@@ -22,7 +22,7 @@ This project is in its early stages. Right now, I’m focused on getting the bas
 
 - Docker installed on your machine ([Instructions for Ubuntu](docker-install-ubuntu.md) | [Official Docker Installation Guide](https://docs.docker.com/get-docker/))
   
-- NVIDIA Container Toolkit installed if using an NVIDIA GPU for Ollama ([Instructions for Ubuntu](docker-install-ubuntu.md) | [Official NVIDIA Docs](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html)). Install with:
+- NVIDIA Container Toolkit installed if using an NVIDIA GPU for Ollama ([Instructions for Ubuntu](docker-install-ubuntu.md) | [Official NVIDIA Docs](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html)).
   
 - Basic familiarity with command-line tools
   
