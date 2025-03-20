@@ -38,7 +38,7 @@ Follow these steps to set up the project locally:
    ```
 
 2. **Generate Self-Signed Certificates**
-   Replace 192.1XX.X.XXX with your machine’s IP or use localhost:
+   Replace 192.1xx.x.xxx with your machine’s IP or use localhost:
 
    ```bash
    mkdir certs
@@ -52,14 +52,14 @@ Follow these steps to set up the project locally:
    cp .env.example .env
    ```
    
-    - Edit .env if you want to override defaults (e.g., custom IPs). The docker-compose.yml has hardcoded values, so this is optional.
+   - Edit .env if you want to override defaults (e.g., custom IPs). The docker-compose.yml has hardcoded values, so this is optional.
    - Note: .env is in .gitignore—don’t commit it.
 
 4. **Verify Nginx Config**
    The nginx.conf uses localhost as server_name. Update to your IP (e.g., 192.1xx.x.xxx) if accessing remotely:
   
    ```bash
-   server_name 192.168.1.12;
+   server_name 192.1xx.x.xxx;
    ```
    
 5. **Run the Docker container**
@@ -67,8 +67,9 @@ Follow these steps to set up the project locally:
    ```bash
    docker compose up -d --build
    ```
-    - Starts all services in detached mode.
-    - Use --env-file .env if you customized .env.
+    
+   - Starts all services in detached mode.
+   - Use --env-file .env if you customized .env.
 
 6. **Pull a model for Ollama**
    Ollama starts without a model. Pull one (e.g., llama2):
@@ -76,7 +77,7 @@ Follow these steps to set up the project locally:
    ```bash
    docker exec -it ollama ollama pull llama2
    ```
-    - Alternatively, you can select and pull a model through the Open WebUI interface after it loads.
+   - Alternatively, you can select and pull a model through the Open WebUI interface after it loads.
    
 7. Open your browser and navigate to:
 
