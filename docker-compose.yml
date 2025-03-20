@@ -1,43 +1,64 @@
 services:
-  open-webui:
-    image: ghcr.io/open-webui/open-webui:main
-    container_name: open-webui
-    ports:
-      - "3000:8080"
-    environment:
-      - OLLAMA_API_BASE_URL=http://ollama:11434
-      - OLLAMA_BASE_URL=http://ollama:11434
-      - ENABLE_RAG_WEB_SEARCH=True              # Enable web search
-      - RAG_WEB_SEARCH_ENGINE=searxng           # Use SearXNG as the engine
-      - SEARXNG_QUERY_URL=http://searxng:8080/search?q=<query>&format=json  # SearXNG endpoint
-      - RAG_WEB_SEARCH_RESULT_COUNT=5           # Number of results (optional, default 3)
-      - RAG_WEB_SEARCH_CONCURRENT_REQUESTS=10   # Concurrent requests (optional, default 10)
-    depends_on:
-      - ollama
-      - searxng
-    restart: unless-stopped
-  ollama:
-    image: ollama/ollama:latest
-    container_name: ollama
-    restart: unless-stopped
+  # Nginx: Reverse proxy for SSL and routing
+  nginx:
+    image: nginx:latest              # Latest Nginx image
     volumes:
-      - ollama-data:/root/.ollama
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro  # Custom Nginx config
+      - ./certs:/certs:ro                      # SSL certificates
+    ports:
+      - "3000:3000"                  # Open WebUI port
+      - "8080:8080"                  # SearXNG port
+    depends_on:
+      open-webui:
+        condition: service_healthy   # Waits for Open WebUI to be healthy
+    restart: unless-stopped          # Auto-restart unless stopped manually
+
+  # Open WebUI: AI interface
+  open-webui:
+    image: ghcr.io/open-webui/open-webui:main  # Latest Open WebUI image
+    environment:
+      - OLLAMA_API_BASE_URL=${OLLAMA_API_BASE_URL}  # Ollama API URL
+      - OLLAMA_BASE_URL=${OLLAMA_BASE_URL}          # Ollama base URL
+      - ENABLE_RAG_WEB_SEARCH=${ENABLE_RAG_WEB_SEARCH}  # Enable web search
+      - RAG_WEB_SEARCH_ENGINE=${RAG_WEB_SEARCH_ENGINE}  # Search engine type
+      - SEARXNG_QUERY_URL=${SEARXNG_QUERY_URL}      # SearXNG query URL
+      - RAG_WEB_SEARCH_RESULT_COUNT=${RAG_WEB_SEARCH_RESULT_COUNT}  # Search result count
+      - RAG_WEB_SEARCH_CONCURRENT_REQUESTS=${RAG_WEB_SEARCH_CONCURRENT_REQUESTS}  # Concurrent requests
+    ports:
+      - "8081:8080"                  # Maps 8081 (host) to 8080 (container)
+    depends_on:
+      - ollama                       # Requires Ollama
+      - searxng                      # Requires SearXNG
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]  # Checks health endpoint
+      interval: 10s                  # Check every 10s
+      timeout: 10s                   # 10s timeout per check
+      retries: 20                    # Retry 20 times (200s total)
+    restart: unless-stopped          # Auto-restart unless stopped manually
+
+  # SearXNG: Privacy-focused search engine
+  searxng:
+    image: docker.io/searxng/searxng:latest  # Latest SearXNG image
+    volumes:
+      - ./searxng:/etc/searxng:rw    # Custom config directory
+    environment:
+      - SEARXNG_BASE_URL=${SEARXNG_BASE_URL}  # SearXNG base URL
+    restart: unless-stopped          # Auto-restart unless stopped manually
+
+  # Ollama: AI model runtime with GPU
+  ollama:
+    image: ollama/ollama:latest      # Latest Ollama image
+    volumes:
+      - ollama-data:/root/.ollama    # Persistent data storage
     deploy:
       resources:
         reservations:
           devices:
-            - driver: nvidia
-              count: 1
-              capabilities: [gpu]
-  searxng:
-    image: docker.io/searxng/searxng:latest
-    container_name: searxng
-    restart: unless-stopped
-    ports:
-      - "8080:8080"
-    volumes:
-      - ./searxng:/etc/searxng:rw
-    environment:
-      - SEARXNG_BASE_URL=http://localhost:8080/
+            - driver: nvidia         # NVIDIA GPU driver
+              count: 1               # Reserve 1 GPU
+              capabilities: [gpu]    # GPU capability
+    restart: unless-stopped          # Auto-restart unless stopped manually
+
+# Persistent volumes
 volumes:
-  ollama-data:
+  ollama-data:                       # Storage for Ollama data
