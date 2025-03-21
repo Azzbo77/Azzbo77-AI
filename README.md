@@ -72,13 +72,16 @@ Follow these steps to set up the project locally:
    - Use --env-file .env if you customized .env.
 
 6. **Pull a model for Ollama**
-   Ollama starts without a model. Pull one (e.g., llama2):
+   Ollama starts without a model. Pull one (e.g., phi-3):
    
    ```bash
-   docker exec -it ollama ollama pull llama2
+   docker exec -it ollama ollama pull phi-3
    ```
-   - Alternatively, you can select and pull a model through the Open WebUI interface after it loads.
-   
+
+   - phi-3 (~2.3GB, 5-10 minutes): Lightweight and fast.
+   - llama2 (~7GB, 10-15 minutes): More capable but heavier.
+   - The model is cached in the ollama-data volume after pulling.
+
 7. Open your browser and navigate to:
 
    - http://localhost:3000 to access the Open WebUI.
@@ -107,7 +110,7 @@ Follow these steps to set up the project locally:
 
 ## Next Steps
 
-- [ ] Preload a default Ollama model (e.g., llama2).
+- [ ] Preload a default Ollama model (e.g., phi-3). (Struggling with this due to pull times)
 - [ ] Add custom AI agent features (e.g., specific tasks).
 - [x] Integrate SearXNG search results with Open WebUI (basic integration done via environment variables)
 - [ ] Integrate SearXNG with Open WebUI (done via RAG settings).
