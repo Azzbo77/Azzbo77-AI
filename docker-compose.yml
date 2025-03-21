@@ -57,6 +57,7 @@ services:
             - driver: nvidia         # NVIDIA GPU driver
               count: 1               # Reserve 1 GPU
               capabilities: [gpu]    # GPU capability
+    command: serve                   # Start the server only
     restart: unless-stopped          # Auto-restart unless stopped manually
 
 # Persistent volumes
