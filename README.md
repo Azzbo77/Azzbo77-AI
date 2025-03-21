@@ -24,7 +24,7 @@ The basic components are fully operational! Open WebUI chats with Ollama models,
   
 - NVIDIA Container Toolkit installed if using an NVIDIA GPU for Ollama ([Instructions for Ubuntu](docker-install-ubuntu.md) | [Official NVIDIA Docs](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html)).
   
-- Basic familiarity with command-line tools
+- Basic familiarity with command-line tools.
   
 ### Installation
 
@@ -38,7 +38,7 @@ Follow these steps to set up the project locally:
    ```
 
 2. **Generate Self-Signed Certificates**
-   Replace 192.1xx.x.xxx with your machine’s IP or use localhost:
+   Replace 192.1xx.x.xxx with your machine’s IP or use localhost: (These files are ignored by `.gitignore` for security)
 
    ```bash
    mkdir certs
@@ -52,7 +52,7 @@ Follow these steps to set up the project locally:
    cp .env.example .env
    ```
    
-   - Edit .env if you want to override defaults (e.g., custom IPs). The docker-compose.yml has hardcoded values, so this is optional.
+   - Edit .env if you want to override defaults. (e.g., custom IPs) The docker-compose.yml has hardcoded values, so this is optional.
    - Note: .env is in .gitignore—don’t commit it.
 
 4. **Verify Nginx Config**
@@ -100,8 +100,8 @@ Follow these steps to set up the project locally:
    - Connects to ollama:11434 and searxng:8080 for RAG (10 results, 2 concurrent requests).
  
  - **Ollama**:
-   - Persistent storage: `ollama-data` volume
-   - GPU support: Reserves 1 NVIDIA GPU (if available)
+   - Persistent storage: `ollama-data` volume.
+   - GPU support: Reserves 1 NVIDIA GPU. (if available)
  
  - **SearXNG**:
    - Config: ./searxng volume.
@@ -110,11 +110,11 @@ Follow these steps to set up the project locally:
 
 ## Next Steps
 
-- [ ] Preload a default Ollama model (e.g., phi-3). (Struggling with this due to pull times)
-- [ ] Add custom AI agent features (e.g., specific tasks).
+- [ ] Preload a default Ollama model. (e.g., phi-3). (Struggling with this due to pull times)
+- [ ] Add custom AI agent features. (e.g., specific tasks)
 - [x] Integrate SearXNG search results with Open WebUI (basic integration done via environment variables)
-- [ ] Integrate SearXNG with Open WebUI (done via RAG settings).
-- [ ] Improve the UI experience
+- [ ] Integrate SearXNG with Open WebUI. (done via RAG settings)
+- [ ] Improve the UI experience.
 - [ ] Expand documentation with screenshots and examples.
 
 ## Contributing
@@ -124,7 +124,7 @@ This is my first go, so I’d love feedback! Open an issue or submit a PR with i
 ## Troubleshooting
 
 - **Ollama fails to start with GPU**: Ensure NVIDIA drivers and the Container Toolkit are installed.
-- **Port Conflicts**: Check 3000, 8080, 8081 are free (sudo netstat -tuln | grep <port>).
+- **Port Conflicts**: Check 3000, 8080, 8081 are free. (sudo netstat -tuln | grep <port>)
 - **No model loaded**: Pull a model as shown in the Installation steps.
 - **"Thinking" State**: Ensure nginx.conf has location /ws/ or /ws/socket.io/.
 - **Certificate Errors**: Ensure nginx.conf has location /ws/ or /ws/socket.io/.
