@@ -24,8 +24,6 @@ services:
       - SEARXNG_QUERY_URL=${SEARXNG_QUERY_URL}      # SearXNG query URL
       - RAG_WEB_SEARCH_RESULT_COUNT=${RAG_WEB_SEARCH_RESULT_COUNT}  # Search result count
       - RAG_WEB_SEARCH_CONCURRENT_REQUESTS=${RAG_WEB_SEARCH_CONCURRENT_REQUESTS}  # Concurrent requests
-    ports:
-      - "8081:8080"                  # Maps 8081 (host) to 8080 (container)
     depends_on:
       - ollama                       # Requires Ollama
       - searxng                      # Requires SearXNG
