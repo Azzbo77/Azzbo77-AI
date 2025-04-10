@@ -1,63 +1,105 @@
-services:
-  # Nginx: Reverse proxy for SSL and routing
-  nginx:
-    image: nginx:latest              # Latest Nginx image
-    volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf:ro  # Custom Nginx config
-      - ./certs:/certs:ro                      # SSL certificates
-    ports:
-      - "3000:3000"                  # Open WebUI port
-      - "8080:8080"                  # SearXNG port
-    depends_on:
-      open-webui:
-        condition: service_healthy   # Waits for Open WebUI to be healthy
-    restart: unless-stopped          # Auto-restart unless stopped manually
+# docker-compose.yml
+# This file defines a multi-service setup for an AI-powered web interface with Nginx as a reverse proxy,
+# Open WebUI as the AI frontend, SearXNG for privacy-focused search, and Ollama for AI model runtime.
 
-  # Open WebUI: AI interface
-  open-webui:
-    image: ghcr.io/open-webui/open-webui:main  # Latest Open WebUI image
+version: '3.8'  # Specifies Docker Compose version for compatibility (3.8 supports most modern features)
+
+services:
+  # Reverse Proxy (Nginx)
+  # Handles SSL termination and routes traffic to Open WebUI
+  reverse-proxy:
+    image: nginx:latest  # Uses the latest stable Nginx image
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro  # Mounts custom Nginx config as read-only
+      - ./certs:/certs:ro                      # Mounts SSL certificates as read-only
+    ports:
+      - "${NGINX_PORT:-443}:443"  # Maps host port (default 443) to container port 443
+    depends_on:
+      ai-interface:
+        condition: service_healthy  # Waits for Open WebUI to be healthy before starting
+    restart: unless-stopped  # Restarts automatically unless manually stopped
+    networks:
+      - Azzbo77-AI  # Connects to custom network for internal communication
+    logging:
+      driver: "json-file"  # Uses JSON logging for structured output
+      options:
+        max-size: "${LOG_MAX_SIZE:-10m}"  # Limits log file size (default 10MB)
+        max-file: "${LOG_MAX_FILES:-3}"   # Keeps up to 3 log files (default)
+
+  # AI Interface (Open WebUI)
+  # Provides the user-facing AI interface, integrating with Ollama and SearXNG
+  ai-interface:
+    image: ghcr.io/open-webui/open-webui:main  # Latest Open WebUI image from GitHub Container Registry
     environment:
-      - OLLAMA_API_BASE_URL=${OLLAMA_API_BASE_URL}  # Ollama API URL
-      - OLLAMA_BASE_URL=${OLLAMA_BASE_URL}          # Ollama base URL
-      - ENABLE_RAG_WEB_SEARCH=${ENABLE_RAG_WEB_SEARCH}  # Enable web search
-      - RAG_WEB_SEARCH_ENGINE=${RAG_WEB_SEARCH_ENGINE}  # Search engine type
-      - SEARXNG_QUERY_URL=${SEARXNG_QUERY_URL}      # SearXNG query URL
-      - RAG_WEB_SEARCH_RESULT_COUNT=${RAG_WEB_SEARCH_RESULT_COUNT}  # Search result count
+      # Configures connection to Ollama and web search features
+      - OLLAMA_API_BASE_URL=${OLLAMA_API_BASE_URL}  # URL for Ollama API (set in .env)
+      - OLLAMA_BASE_URL=${OLLAMA_BASE_URL}          # Base URL for Ollama (often same as API)
+      - ENABLE_RAG_WEB_SEARCH=${ENABLE_RAG_WEB_SEARCH}  # Enables web search (true/false)
+      - RAG_WEB_SEARCH_ENGINE=${RAG_WEB_SEARCH_ENGINE}  # Specifies search engine (e.g., searxng)
+      - SEARXNG_QUERY_URL=${SEARXNG_QUERY_URL}      # URL for SearXNG queries
+      - RAG_WEB_SEARCH_RESULT_COUNT=${RAG_WEB_SEARCH_RESULT_COUNT}  # Number of search results
       - RAG_WEB_SEARCH_CONCURRENT_REQUESTS=${RAG_WEB_SEARCH_CONCURRENT_REQUESTS}  # Concurrent requests
     depends_on:
-      - ollama                       # Requires Ollama
-      - searxng                      # Requires SearXNG
+      - model-runtime  # Requires Ollama for AI model inference
+      - search-engine  # Requires SearXNG for web search
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]  # Checks health endpoint
-      interval: 10s                  # Check every 10s
-      timeout: 10s                   # 10s timeout per check
-      retries: 20                    # Retry 20 times (200s total)
-    restart: unless-stopped          # Auto-restart unless stopped manually
+      # Checks if Open WebUI is running by hitting its health endpoint
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 10s  # Checks every 10 seconds
+      timeout: 5s    # Fails if no response within 5 seconds
+      retries: 10    # Retries 10 times (100s total) before marking unhealthy
+    restart: unless-stopped  # Restarts unless manually stopped
+    networks:
+      - Azzbo77-AI  # Joins custom network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "${LOG_MAX_SIZE:-10m}"
+        max-file: "${LOG_MAX_FILES:-3}"
 
-  # SearXNG: Privacy-focused search engine
-  searxng:
-    image: docker.io/searxng/searxng:latest  # Latest SearXNG image
+  # Search Engine (SearXNG)
+  # Privacy-focused search engine for Open WebUI's web search capabilities
+  search-engine:
+    image: docker.io/searxng/searxng:latest  # Latest SearXNG image from Docker Hub
     volumes:
-      - ./searxng:/etc/searxng:rw    # Custom config directory
+      - ./searxng:/etc/searxng:rw  # Mounts config directory (read-write for customization)
     environment:
-      - SEARXNG_BASE_URL=${SEARXNG_BASE_URL}  # SearXNG base URL
-    restart: unless-stopped          # Auto-restart unless stopped manually
+      - SEARXNG_BASE_URL=${SEARXNG_BASE_URL}  # Base URL for SearXNG (set in .env)
+    restart: unless-stopped  # Restarts unless manually stopped
+    networks:
+      - Azzbo77-AI  # Joins custom network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "${LOG_MAX_SIZE:-10m}"
+        max-file: "${LOG_MAX_FILES:-3}"
 
-  # Ollama: AI model runtime with GPU
-  ollama:
-    image: ollama/ollama:latest      # Latest Ollama image
+  # Model Runtime (Ollama)
+  # Runs AI models with GPU support for Open WebUI
+  model-runtime:
+    image: ollama/ollama:latest  # Latest Ollama image
     volumes:
-      - ollama-data:/root/.ollama    # Persistent data storage
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia         # NVIDIA GPU driver
-              count: 1               # Reserve 1 GPU
-              capabilities: [gpu]    # GPU capability
-    command: serve                   # Start the server only
-    restart: unless-stopped          # Auto-restart unless stopped manually
+      - ollama-data:/root/.ollama  # Persistent storage for model data
+    runtime: nvidia  # Uses NVIDIA runtime for GPU acceleration
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all  # Makes all GPUs available to Ollama
+    command: serve  # Starts the Ollama server
+    restart: unless-stopped  # Restarts unless manually stopped
+    networks:
+      - Azzbo77-AI  # Joins custom network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "${LOG_MAX_SIZE:-10m}"
+        max-file: "${LOG_MAX_FILES:-3}"
 
-# Persistent volumes
+# Persistent Volumes
+# Defines named volumes for data persistence across container restarts
 volumes:
-  ollama-data:                       # Storage for Ollama data
+  ollama-data:  # Stores Ollama model data
+
+# Networks
+# Defines a custom bridge network for service communication
+networks:
+  Azzbo77-AI:
+    driver: bridge  # Uses bridge driver for single-host networking
