@@ -1,4 +1,4 @@
-  # Azzbo77-AI
+# Azzbo77-AI
 
 Welcome to my first attempt at building an AI Agent! This is a work-in-progress project, and I’ll be developing it iteratively as I go. The goal is to create a functional AI agent using modern tools and frameworks.
 
@@ -38,25 +38,25 @@ Follow these steps to set up the project locally:
    ```
 
 2. **Generate Self-Signed Certificates**
-   Replace 192.1xx.x.xxx with your machine’s IP or use localhost: (These files are ignored by `.gitignore` for security)
+Replace 192.1xx.x.xxx with your machine’s IP or use localhost: (These files are ignored by `.gitignore` for security)
 
    ```bash
    mkdir certs
    openssl req -x509 -newkey rsa:4096 -keyout certs/key.pem -out certs/cert.pem -days 365 -nodes -subj "/CN=192.1xx.x.xxx" -addext "subjectAltName = DNS:localhost, IP:192.1xx.x.xxx"
    ```
 
-3. **Configure Environment Variables** (Opional)
-   Copy the example file:
+3. **Configure Environment Variables**
+Copy the example file:
 
    ```bash
    cp .env.example .env
    ```
    
-   - Edit .env if you want to override defaults. (e.g., custom IPs) The docker-compose.yml has hardcoded values, so this is optional.
-   - Note: .env is in .gitignore—don’t commit it.
+   -Edit .env to set NGINX_SERVER_NAME (e.g., 192.1xx.x.xxx) and other variables if needed.
+   - .env is optional but recommended for external access (ignored by .gitignore).
 
 4. **Verify Nginx Config**
-   The nginx.conf uses localhost as server_name. Update to your IP (e.g., 192.1xx.x.xxx) if accessing remotely:
+The nginx.conf uses localhost as server_name. Update to your IP (e.g., 192.1xx.x.xxx) if accessing remotely:
   
    ```bash
    server_name 192.1xx.x.xxx;
@@ -65,7 +65,7 @@ Follow these steps to set up the project locally:
 5. **Run the Docker container**
 
    ```bash
-   docker compose up -d --build
+   docker compose up -d
    ```
     
    - Starts all services in detached mode.
@@ -84,22 +84,22 @@ Follow these steps to set up the project locally:
 
 7. Open your browser and navigate to:
 
-   - http://localhost:3000 to access the Open WebUI.
-   - http://localhost:8080 to access SearXNG for local web searches.
+   - Open WebUI: https://localhost (or your IP/domain).
+   - SearXNG: https://localhost/searxng (or your IP/domain with /searxng path).
 
 ## Configuration
  
 ### The docker-compose.yml file defines:
 
- - **Nginx**:
-   - Ports: 3000 (Open WebUI), 8080 (SearXNG).
+ - **reverse-proxy (Nginx)**:
+   - Port: 443 (HTTPS, configurable via NGINX_PORT in .env).
    - SSL: Self-signed certs from ./certs.
 
- - **Open WebUI**:
-   - Port: 8081:8080 (direct access).
-   - Connects to ollama:11434 and searxng:8080 for RAG (10 results, 2 concurrent requests).
+ - **ai-interface (Open WebUI)**:
+   - Connects to model-runtime:11434 and search-engine:8080 for RAG (5 results, 10 concurrent requests).
+   - No direct port exposed; accessed via Nginx.
  
- - **Ollama**:
+ - **model-runtime (Ollama)**:
    - Persistent storage: `ollama-data` volume.
    - GPU support: Reserves 1 NVIDIA GPU. (if available)
  
@@ -113,7 +113,6 @@ Follow these steps to set up the project locally:
 - [ ] Preload a default Ollama model. (e.g., phi-3). (Struggling with this due to pull times)
 - [ ] Add custom AI agent features. (e.g., specific tasks)
 - [x] Integrate SearXNG search results with Open WebUI (basic integration done via environment variables)
-- [ ] Integrate SearXNG with Open WebUI. (done via RAG settings)
 - [ ] Improve the UI experience.
 - [ ] Expand documentation with screenshots and examples.
 
@@ -124,7 +123,7 @@ This is my first go, so I’d love feedback! Open an issue or submit a PR with i
 ## Troubleshooting
 
 - **Ollama fails to start with GPU**: Ensure NVIDIA drivers and the Container Toolkit are installed.
-- **Port Conflicts**: Check 3000, 8080, 8081 are free. (sudo netstat -tuln | grep <port>)
+- **Port Conflicts**: Check 443 is free. (sudo netstat -tuln | grep 443)
 - **No model loaded**: Pull a model as shown in the Installation steps.
 - **"Thinking" State**: Ensure nginx.conf has location /ws/ or /ws/socket.io/.
 - **Certificate Errors**: Ensure nginx.conf has location /ws/ or /ws/socket.io/.
@@ -133,7 +132,7 @@ This is my first go, so I’d love feedback! Open an issue or submit a PR with i
 ## Notes
  
 - Replace 192.1xx.x.xxx with your IP or hostname.
-- .env is optional since values are hardcoded.
+- .env enhances flexibility; defaults are in docker-compose.yml.
 
 ## License
 
