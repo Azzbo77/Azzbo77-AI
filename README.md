@@ -91,19 +91,19 @@ The nginx.conf uses localhost as server_name. Update to your IP (e.g., 192.1xx.x
  
 ### The docker-compose.yml file defines:
 
- - **reverse-proxy (Nginx)**:
+ - **Reverse-proxy (Nginx)**:
    - Port: 443 (HTTPS, configurable via NGINX_PORT in .env).
    - SSL: Self-signed certs from ./certs.
 
- - **ai-interface (Open WebUI)**:
+ - **Ai-interface (Open WebUI)**:
    - Connects to model-runtime:11434 and search-engine:8080 for RAG (5 results, 10 concurrent requests).
    - No direct port exposed; accessed via Nginx.
  
- - **model-runtime (Ollama)**:
+ - **Model-runtime (Ollama)**:
    - Persistent storage: `ollama-data` volume.
    - GPU support: Reserves 1 NVIDIA GPU. (if available)
  
- - **SearXNG**:
+ - **Search-engine (SearXNG)**:
    - Config: ./searxng volume.
 
 **Edit docker-compose.yml or .env to customize.**
