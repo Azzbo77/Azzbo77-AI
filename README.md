@@ -37,7 +37,7 @@ Follow these steps to set up the project locally:
    cd Azzbo77-AI
    ```
 
-2. **Generate Self-Signed Certificates**
+2. **Generate Self-Signed Certificates**  
 Replace 192.1xx.x.xxx with your machine’s IP or use localhost: (These files are ignored by `.gitignore` for security)
 
    ```bash
@@ -45,17 +45,17 @@ Replace 192.1xx.x.xxx with your machine’s IP or use localhost: (These files ar
    openssl req -x509 -newkey rsa:4096 -keyout certs/key.pem -out certs/cert.pem -days 365 -nodes -subj "/CN=192.1xx.x.xxx" -addext "subjectAltName = DNS:localhost, IP:192.1xx.x.xxx"
    ```
 
-3. **Configure Environment Variables**
+3. **Configure Environment Variables**  
 Copy the example file:
 
    ```bash
    cp .env.example .env
    ```
    
-   -Edit .env to set NGINX_SERVER_NAME (e.g., 192.1xx.x.xxx) and other variables if needed.
+   - Edit .env to set NGINX_SERVER_NAME (e.g., 192.1xx.x.xxx) and other variables if needed.
    - .env is optional but recommended for external access (ignored by .gitignore).
 
-4. **Verify Nginx Config**
+4. **Verify Nginx Config**  
 The nginx.conf uses localhost as server_name. Update to your IP (e.g., 192.1xx.x.xxx) if accessing remotely:
   
    ```bash
@@ -71,7 +71,7 @@ The nginx.conf uses localhost as server_name. Update to your IP (e.g., 192.1xx.x
    - Starts all services in detached mode.
    - Use --env-file .env if you customized .env.
 
-6. **Pull a model for Ollama**
+6. **Pull a model for Ollama**  
    Ollama starts without a model. Pull one (e.g., phi-3):
    
    ```bash
