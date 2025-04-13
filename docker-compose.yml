@@ -1,105 +1,218 @@
 # docker-compose.yml
-# This file defines a multi-service setup for an AI-powered web interface with Nginx as a reverse proxy,
-# Open WebUI as the AI frontend, SearXNG for privacy-focused search, and Ollama for AI model runtime.
+# This file defines a multi-service Docker setup for an AI-powered web interface.
+# Services include Nginx (reverse proxy), Open WebUI (AI frontend), SearXNG (search engine),
+# Ollama (AI model runtime), and Redis (WebSocket support for real-time communication).
+# Each service has an explicit container_name for simpler management (e.g., 'docker logs ai-interface').
 
-version: '3.8'  # Specifies Docker Compose version for compatibility (3.8 supports most modern features)
+version: '3.8'
+# Uses Docker Compose version 3.8 for compatibility with modern features and broad support.
 
 services:
   # Reverse Proxy (Nginx)
-  # Handles SSL termination and routes traffic to Open WebUI
+  # Routes external traffic to Open WebUI and handles SSL for secure HTTPS connections.
   reverse-proxy:
-    image: nginx:latest  # Uses the latest stable Nginx image
+    container_name: reverse-proxy
+    # Fixed name allows commands like 'docker logs reverse-proxy' without generated names.
+    image: nginx:latest
+    # Latest stable Nginx image ensures reliability, security updates, and performance.
     volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf:ro  # Mounts custom Nginx config as read-only
-      - ./certs:/certs:ro                      # Mounts SSL certificates as read-only
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      # Mounts custom Nginx config (read-only) to define routing and SSL settings.
+      - ./certs:/certs:ro
+      # Mounts SSL certificates (read-only) for HTTPS support.
     ports:
-      - "${NGINX_PORT:-443}:443"  # Maps host port (default 443) to container port 443
+      - "${NGINX_PORT:-443}:443"
+      # Maps host port (default 443 from .env) to container port 443 for HTTPS access.
+      # NGINX_PORT allows flexibility if 443 is in use.
     depends_on:
       ai-interface:
-        condition: service_healthy  # Waits for Open WebUI to be healthy before starting
-    restart: unless-stopped  # Restarts automatically unless manually stopped
+        condition: service_healthy
+      # Starts only after Open WebUI is healthy to prevent routing errors.
+    restart: unless-stopped
+    # Restarts automatically unless manually stopped for high availability.
     networks:
-      - Azzbo77-AI  # Connects to custom network for internal communication
+      - Azzbo77-AI
+      # Joins custom bridge network for secure communication with other services.
     logging:
-      driver: "json-file"  # Uses JSON logging for structured output
+      driver: "json-file"
+      # Uses JSON logging for structured, parseable logs.
       options:
-        max-size: "${LOG_MAX_SIZE:-10m}"  # Limits log file size (default 10MB)
-        max-file: "${LOG_MAX_FILES:-3}"   # Keeps up to 3 log files (default)
+        max-size: "${LOG_MAX_SIZE:-10m}"
+        # Limits log size to 10MB (from .env) to manage disk space.
+        max-file: "${LOG_MAX_FILES:-3}"
+        # Keeps 3 log files for balance between storage and history.
 
   # AI Interface (Open WebUI)
-  # Provides the user-facing AI interface, integrating with Ollama and SearXNG
+  # User-facing web interface for AI model interaction and web search, with Redis WebSocket support.
   ai-interface:
-    image: ghcr.io/open-webui/open-webui:main  # Latest Open WebUI image from GitHub Container Registry
+    container_name: ai-interface
+    # Fixed name simplifies commands like 'docker exec -it ai-interface env'.
+    image: ghcr.io/open-webui/open-webui:main
+    # Latest Open WebUI image for up-to-date features.
     environment:
-      # Configures connection to Ollama and web search features
-      - OLLAMA_API_BASE_URL=${OLLAMA_API_BASE_URL}  # URL for Ollama API (set in .env)
-      - OLLAMA_BASE_URL=${OLLAMA_BASE_URL}          # Base URL for Ollama (often same as API)
-      - ENABLE_RAG_WEB_SEARCH=${ENABLE_RAG_WEB_SEARCH}  # Enables web search (true/false)
-      - RAG_WEB_SEARCH_ENGINE=${RAG_WEB_SEARCH_ENGINE}  # Specifies search engine (e.g., searxng)
-      - SEARXNG_QUERY_URL=${SEARXNG_QUERY_URL}      # URL for SearXNG queries
-      - RAG_WEB_SEARCH_RESULT_COUNT=${RAG_WEB_SEARCH_RESULT_COUNT}  # Number of search results
-      - RAG_WEB_SEARCH_CONCURRENT_REQUESTS=${RAG_WEB_SEARCH_CONCURRENT_REQUESTS}  # Concurrent requests
+      # Configures connections to Ollama, SearXNG, and Redis using .env variables.
+      - OLLAMA_API_BASE_URL=${OLLAMA_API_BASE_URL}
+      # URL for Ollama’s API (http://model-runtime:11434) to send AI model requests.
+      - OLLAMA_BASE_URL=${OLLAMA_BASE_URL}
+      # Base URL for Ollama, typically same as API URL, for model access.
+      - ENABLE_RAG_WEB_SEARCH=${ENABLE_RAG_WEB_SEARCH}
+      # Enables Retrieval-Augmented Generation (true in .env) for web-enhanced responses.
+      - RAG_WEB_SEARCH_ENGINE=${RAG_WEB_SEARCH_ENGINE}
+      # Sets SearXNG as the RAG search engine.
+      - SEARXNG_QUERY_URL=${SEARXNG_QUERY_URL}
+      # SearXNG query URL (http://search-engine:8080/search?q=<query>&format=json).
+      - RAG_WEB_SEARCH_RESULT_COUNT=${RAG_WEB_SEARCH_RESULT_COUNT}
+      # Limits search results to 5 per query (from .env).
+      - RAG_WEB_SEARCH_CONCURRENT_REQUESTS=${RAG_WEB_SEARCH_CONCURRENT_REQUESTS}
+      # Allows 10 simultaneous search requests (from .env).
+      - ENABLE_WEBSOCKET_SUPPORT=${ENABLE_WEBSOCKET_SUPPORT}
+      # Activates WebSocket support (true in .env) for live AI responses.
+      - WEBSOCKET_MANAGER=${WEBSOCKET_MANAGER}
+      # Sets Redis as WebSocket manager (redis in .env).
+      - WEBSOCKET_REDIS_URL=${WEBSOCKET_REDIS_URL}
+      # Redis URL (redis://redis-valkey:6379/1) for WebSocket data.
+      - LOG_LEVEL=DEBUG
+      # Enables detailed logging to show WebSocket initialization and errors.
     depends_on:
-      - model-runtime  # Requires Ollama for AI model inference
-      - search-engine  # Requires SearXNG for web search
+      - model-runtime
+      # Requires Ollama for AI model inference.
+      - search-engine
+      # Requires SearXNG for web search capabilities.
+      - redis-valkey
+      # Requires Redis for WebSocket real-time communication.
     healthcheck:
-      # Checks if Open WebUI is running by hitting its health endpoint
       test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
-      interval: 10s  # Checks every 10 seconds
-      timeout: 5s    # Fails if no response within 5 seconds
-      retries: 10    # Retries 10 times (100s total) before marking unhealthy
-    restart: unless-stopped  # Restarts unless manually stopped
+      # Checks Open WebUI’s health endpoint to confirm it’s running.
+      interval: 10s
+      # Runs every 10 seconds.
+      timeout: 5s
+      # Fails if no response in 5 seconds.
+      retries: 10
+      # Retries 10 times (100s total) before marking unhealthy.
+    restart: unless-stopped
+    # Restarts unless manually stopped for reliability.
     networks:
-      - Azzbo77-AI  # Joins custom network
+      - Azzbo77-AI
+      # Connects to custom network for service communication.
     logging:
       driver: "json-file"
+      # Matches logging settings for consistency.
       options:
         max-size: "${LOG_MAX_SIZE:-10m}"
         max-file: "${LOG_MAX_FILES:-3}"
+      # 10MB, 3 files from .env for disk management.
 
   # Search Engine (SearXNG)
-  # Privacy-focused search engine for Open WebUI's web search capabilities
+  # Privacy-focused search engine for Open WebUI’s RAG web search.
   search-engine:
-    image: docker.io/searxng/searxng:latest  # Latest SearXNG image from Docker Hub
+    container_name: search-engine
+    # Fixed name for commands like 'docker logs search-engine'.
+    image: docker.io/searxng/searxng:latest
+    # Latest SearXNG image for current search features.
     volumes:
-      - ./searxng:/etc/searxng:rw  # Mounts config directory (read-write for customization)
+      - ./searxng:/etc/searxng:rw
+      # Mounts config directory (read-write) for customization.
     environment:
-      - SEARXNG_BASE_URL=${SEARXNG_BASE_URL}  # Base URL for SearXNG (set in .env)
-    restart: unless-stopped  # Restarts unless manually stopped
+      - SEARXNG_BASE_URL=${SEARXNG_BASE_URL}
+      # External base URL (http://localhost:8080 from .env) for browser access.
+    restart: unless-stopped
+    # Restarts unless manually stopped.
     networks:
-      - Azzbo77-AI  # Joins custom network
+      - Azzbo77-AI
+      # Joins custom network for Open WebUI communication.
     logging:
       driver: "json-file"
       options:
         max-size: "${LOG_MAX_SIZE:-10m}"
         max-file: "${LOG_MAX_FILES:-3}"
+      # Matches logging settings.
 
   # Model Runtime (Ollama)
-  # Runs AI models with GPU support for Open WebUI
+  # Runs AI models with GPU support for Open WebUI’s inference.
   model-runtime:
-    image: ollama/ollama:latest  # Latest Ollama image
+    container_name: model-runtime
+    # Fixed name for commands like 'docker logs model-runtime'.
+    image: ollama/ollama:latest
+    # Latest Ollama image for up-to-date AI model execution.
     volumes:
-      - ollama-data:/root/.ollama  # Persistent storage for model data
-    runtime: nvidia  # Uses NVIDIA runtime for GPU acceleration
+      - ollama-data:/root/.ollama
+      # Persists model data to retain models across restarts.
+    runtime: nvidia
+    # Enables NVIDIA GPU acceleration, assuming nvidia-docker is installed.
     environment:
-      - NVIDIA_VISIBLE_DEVICES=all  # Makes all GPUs available to Ollama
-    command: serve  # Starts the Ollama server
-    restart: unless-stopped  # Restarts unless manually stopped
+      - NVIDIA_VISIBLE_DEVICES=all
+      # Makes all GPUs available to Ollama for performance.
+    command: serve
+    # Starts Ollama server for API requests from Open WebUI.
+    restart: unless-stopped
+    # Restarts unless manually stopped.
     networks:
-      - Azzbo77-AI  # Joins custom network
+      - Azzbo77-AI
+      # Connects to custom network for Open WebUI communication.
     logging:
       driver: "json-file"
       options:
         max-size: "${LOG_MAX_SIZE:-10m}"
         max-file: "${LOG_MAX_FILES:-3}"
+      # Consistent logging settings.
+
+  # Redis for WebSocket Support
+  # Manages real-time WebSocket connections for Open WebUI, enabling live updates.
+  redis-valkey:
+    container_name: redis-valkey
+    # Fixed name for commands like 'docker exec -it redis-valkey valkey-cli ping'.
+    image: docker.io/valkey/valkey:8.0.1-alpine
+    # Valkey 8.0.1 (Redis-compatible) for lightweight WebSocket management.
+    volumes:
+      - redis-data:/data
+      # Persists Redis data to maintain WebSocket state.
+    command: "valkey-server --save 30 1"
+    # Runs Valkey server, saving database every 30 minutes if a key changes.
+    healthcheck:
+      test: "[ $$(valkey-cli ping) = 'PONG' ]"
+      # Ensures Redis responds with 'PONG' to confirm it’s running.
+      start_period: 5s
+      # Waits 5 seconds before first check for startup.
+      interval: 1s
+      # Checks every second for monitoring.
+      timeout: 3s
+      # Fails if no response in 3 seconds.
+      retries: 5
+      # Retries 5 times before marking unhealthy.
+    restart: unless-stopped
+    # Restarts unless stopped for WebSocket reliability.
+    cap_drop:
+      - ALL
+      # Drops all Linux capabilities for security.
+    cap_add:
+      - SETGID
+      # Allows group ID settings for Redis processes.
+      - SETUID
+      # Allows user ID settings for Redis processes.
+      - DAC_OVERRIDE
+      # Permits overriding file access for data persistence.
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "${LOG_MAX_SIZE:-1m}"
+        # Limits logs to 1MB, as Redis logs minimally.
+        max-file: "${LOG_MAX_FILES:-1}"
+        # One log file for Redis’s low log volume.
+    networks:
+      - Azzbo77-AI
+      # Joins custom network for Open WebUI communication.
 
 # Persistent Volumes
-# Defines named volumes for data persistence across container restarts
+# Named volumes to store data across container restarts.
 volumes:
-  ollama-data:  # Stores Ollama model data
+  ollama-data:
+    # Stores Ollama’s AI model data for persistence.
+  redis-data:
+    # Stores Redis data for WebSocket state continuity.
 
 # Networks
-# Defines a custom bridge network for service communication
+# Custom network for secure, isolated service communication.
 networks:
   Azzbo77-AI:
-    driver: bridge  # Uses bridge driver for single-host networking
+    driver: bridge
+    # Bridge network for single-host communication, ideal for this setup.
